@@ -77,6 +77,7 @@ const SideBar = () => {
                                 <ul className="sidebar-submenu">
                                     <li><NavLink to="/">Home</NavLink></li>
                                     <li><NavLink to="/users">All Users</NavLink></li>
+                                    <li><NavLink to="/login">login</NavLink></li>
                                 </ul>
                             </li>
                         </ul>

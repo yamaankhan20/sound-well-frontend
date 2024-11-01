@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import React,{useEffect} from "react";
 import Dashboard from "./dashboard/index";
 import AllUsers from "./dashboard/all-users";
+import Login from "./dashboard/login";
 import Header from "./dashboard/components/header";
 import Sidebar from "./dashboard/components/SideBar";
 import Footer from "./dashboard/components/Footer";
@@ -94,6 +95,7 @@ function App() {
                     <Routes>
                         <Route path="/" element={<Dashboard />} />
                         <Route path="/users" element={<AllUsers />} />
+                        <Route path="/login" element={<Login />} />
                     </Routes>
                     <Footer />
                 </div>
