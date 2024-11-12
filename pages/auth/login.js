@@ -44,7 +44,7 @@ export default function Login() {
         })
         .then((data) => {
 
-          if (data && data.message && data.token) {
+          if (data && data.message && data.token ) {
             if(data.role === "user"){
               setError("Failed to login. Please try again.");
               setButtonText("Login");
@@ -58,7 +58,7 @@ export default function Login() {
             setButtonText("Login");
           }
         })
-        .catch((error) => {
+        .catch(() => {
           setError( "Failed to login. Please try again.");
           setButtonText("Login");
         });
