@@ -3,22 +3,22 @@ name: Deploy Next.js to Namecheap Hosting
 on:
   push:
     branches:
-      - main  # This will trigger the pipeline when changes are pushed to the 'main' branch
+      - main  # Trigger on push to the 'main' branch
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest  # The workflow will run on an Ubuntu environment
+    runs-on: ubuntu-latest  # Use the latest Ubuntu runner
 
     steps:
-      # Step 1: Checkout the code from GitHub repository
+      # Step 1: Checkout code from GitHub repository
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Step 2: Set up Node.js environment (replace with the version of Node.js you need)
+      # Step 2: Set up Node.js environment (adjust the version as per your requirement)
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16'  # You can replace '16' with the version of Node.js you use
+          node-version: '16'  # Replace with your Node.js version if necessary
 
       # Step 3: Install dependencies
       - name: Install dependencies
@@ -31,29 +31,30 @@ jobs:
       # Step 5: Deploy to Namecheap server via SSH
       - name: Deploy to Namecheap via SSH
         env:
-          PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}  # The private SSH key stored in GitHub secrets
-          REMOTE_HOST: 66.29.132.45          # Replace with your Namecheap server IP or hostname
-          REMOTE_USER: longczxa  # Replace with your SSH username (e.g., 'root' or 'username')
-          REMOTE_PATH: /home/longczxa/thesoundwell-vibro-therapy-back.longevityproducts.info  # Update the path here
+          PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}  # Private key for SSH, stored as GitHub secrets
+          REMOTE_HOST: 66.29.132.45  # Replace with your Namecheap server IP or domain
+          REMOTE_USER: longczxa  # Replace with your SSH username
+          REMOTE_PATH: /home/longczxa/thesoundwell-vibro-therapy-back.longevityproducts.info  # Remote path where the app is located
         run: |
-          # Set up SSH key for deployment
+          # Set up the SSH key for authentication
           mkdir -p ~/.ssh
           echo "$PRIVATE_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa  # Set the correct permissions for the SSH private key
 
           # SSH into the server and deploy the application
           ssh -o StrictHostKeyChecking=no -p 22 $REMOTE_USER@$REMOTE_HOST << 'EOF'
-            # Navigate to your app directory on the server
-            cd $REMOTE_PATH || exit
+            # Ensure we're in the correct directory
+            cd $REMOTE_PATH || exit  # Exit if the directory doesn't exist
 
-            # Pull the latest changes from GitHub (assuming the repo is cloned on the server)
-            git pull origin main || exit
+            # Pull the latest changes from the GitHub repo
+            git pull origin main || exit  # Exit if git pull fails
 
             # Install production dependencies on the server
-            npm install --production || exit
+            npm install --production || exit  # Exit if npm install fails
 
-            # Build the Next.js app (optional, if already built locally)
-            npm run build || exit
+            # If you're using PM2 to run the app, restart it
+            pm2 restart next-app || exit  # Ensure your app is being managed by PM2
 
-            # Restart the app with PM2 (or another process manager)
-            pm2 restart next-app || exit
+            # If you're not using PM2, use the command below to start the Next.js app
+            # npm run start || exit
+          EOF
