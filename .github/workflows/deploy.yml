@@ -37,25 +37,38 @@ jobs:
           REMOTE_USER: longczxa  # SSH username
           REMOTE_PATH: /home/longczxa/thesoundwell-vibro-therapy-back.longevityproducts.info  # Path on server
         run: |
-          # Start the SSH agent and add the private key
-          eval "$(ssh-agent -s)"
-          echo "$PRIVATE_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+          # Ensure the .ssh directory exists
+          mkdir -p ~/.ssh
           
-          # Add the passphrase-protected key to the SSH agent
-          echo "$SSH_PASSPHRASE" | ssh-add ~/.ssh/id_rsa
-
+          # Add the private key to the ssh-agent
+          echo "$PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa  # Set the correct permissions for the SSH private key
+          
+          # Use the passphrase for the private key if it's set
+          if [ -n "$SSH_PASSPHRASE" ]; then
+            echo "$SSH_PASSPHRASE" | ssh-add ~/.ssh/id_rsa
+          else
+            ssh-add ~/.ssh/id_rsa  # No passphrase, just add the key
+          fi
+          
+          # Ensure the correct permissions for known_hosts file
+          touch ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+          
           # SSH into the server and deploy the application
-          ssh -o StrictHostKeyChecking=no -p 22 $REMOTE_USER@$REMOTE_HOST << EOF
-            # Navigate to the app directory
-            cd $REMOTE_PATH || exit 1
-
-            # Pull the latest changes from the GitHub repository
-            git pull origin master || exit 1
-
-            # Install production dependencies
-            npm install --production || exit 1
-
-            # Restart the app using PM2
-            pm2 restart next-app || exit 1
+          ssh -o StrictHostKeyChecking=no -p 22 $REMOTE_USER@$REMOTE_HOST << 'EOF'
+            # Ensure we're in the correct directory
+            cd $REMOTE_PATH || exit 1  # Exit if the directory doesn't exist
+          
+            # Pull the latest changes from the GitHub repo
+            git pull origin master || exit 1  # Exit if git pull fails
+          
+            # Install production dependencies on the server
+            npm install --production || exit 1  # Exit if npm install fails
+          
+            # If you're using PM2 to run the app, restart it
+            pm2 restart next-app || exit 1  # Ensure your app is being managed by PM2
+          
+            # If you're not using PM2, use the command below to start the Next.js app
+            # npm run start || exit 1
           EOF
