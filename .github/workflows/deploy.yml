@@ -24,41 +24,38 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # Step 4: Build the Next.js app (optional, but good practice)
+      # Step 4: Build the Next.js app
       - name: Build Next.js app
         run: npm run build
 
       # Step 5: Deploy to Namecheap server via SSH
       - name: Deploy to Namecheap via SSH
         env:
-          PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}  # Private key for SSH, stored as GitHub secrets
-          SSH_PASSPHRASE: ${{ secrets.SSH_PASSPHRASE }}  # The passphrase for your SSH key
-          REMOTE_HOST: 66.29.132.45  # Replace with your Namecheap server IP or domain
-          REMOTE_USER: longczxa  # Replace with your SSH username
-          REMOTE_PATH: /home/longczxa/thesoundwell-vibro-therapy-back.longevityproducts.info  # Remote path where the app is located
+          PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}  # SSH private key stored in GitHub secrets
+          SSH_PASSPHRASE: ${{ secrets.SSH_PASSPHRASE }}  # Passphrase for SSH key
+          REMOTE_HOST: 66.29.132.45  # Namecheap server IP or domain
+          REMOTE_USER: longczxa  # SSH username
+          REMOTE_PATH: /home/longczxa/thesoundwell-vibro-therapy-back.longevityproducts.info  # Path on server
         run: |
-          # Set up the SSH key for authentication with passphrase
-          mkdir -p ~/.ssh
+          # Start the SSH agent and add the private key
+          eval "$(ssh-agent -s)"
           echo "$PRIVATE_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa  # Set the correct permissions for the SSH private key
+          chmod 600 ~/.ssh/id_rsa
           
-          # Use the SSH passphrase if provided to unlock the private key
+          # Add the passphrase-protected key to the SSH agent
           echo "$SSH_PASSPHRASE" | ssh-add ~/.ssh/id_rsa
 
           # SSH into the server and deploy the application
-          ssh -o StrictHostKeyChecking=no -p 22 $REMOTE_USER@$REMOTE_HOST << 'EOF'
-            # Ensure we're in the correct directory
-            cd $REMOTE_PATH || exit  # Exit if the directory doesn't exist
+          ssh -o StrictHostKeyChecking=no -p 22 $REMOTE_USER@$REMOTE_HOST << EOF
+            # Navigate to the app directory
+            cd $REMOTE_PATH || exit 1
 
-            # Pull the latest changes from the GitHub repo
-            git pull origin master || exit  # Exit if git pull fails
+            # Pull the latest changes from the GitHub repository
+            git pull origin master || exit 1
 
-            # Install production dependencies on the server
-            npm install --production || exit  # Exit if npm install fails
+            # Install production dependencies
+            npm install --production || exit 1
 
-            # If you're using PM2 to run the app, restart it
-            pm2 restart next-app || exit  # Ensure your app is being managed by PM2
-
-            # If you're not using PM2, use the command below to start the Next.js app
-            # npm run start || exit
+            # Restart the app using PM2
+            pm2 restart next-app || exit 1
           EOF
