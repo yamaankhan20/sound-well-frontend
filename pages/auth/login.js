@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from "react";
-import Link from "next/link";
 import Router from "next/router";
 
 // layout for page
@@ -146,13 +145,6 @@ export default function Login() {
                 >
                   <small>Forgot password?</small>
                 </span>
-              </div>
-              <div className="w-1/2 text-right">
-                <Link href="/auth/register" legacyBehavior>
-                  <span style={{cursor:"pointer"}} className="text-blueGray-200">
-                    <small>Create new account</small>
-                  </span>
-                </Link>
               </div>
             </div>
           </div>

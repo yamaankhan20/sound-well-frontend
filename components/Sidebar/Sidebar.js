@@ -7,6 +7,8 @@ import UserDropdown from "components/Dropdowns/UserDropdown.js";
 export default function Sidebar() {
   const [collapseShow, setCollapseShow] = React.useState("hidden");
   const router = useRouter();
+  const isActive = (path) => router.pathname === path || router.asPath.startsWith(path);
+
   return (
     <>
       <nav className="md:left-0 md:block md:fixed md:top-0 md:bottom-0 md:overflow-y-auto md:flex-row md:flex-nowrap md:overflow-hidden shadow-xl bg-white flex flex-wrap items-center justify-between relative md:w-64 z-10 py-4 px-6">
@@ -83,24 +85,40 @@ export default function Sidebar() {
             <ul className="md:flex-col md:min-w-full flex flex-col list-none">
               <li className="items-center">
                 <Link href="/admin/dashboard">
-                  <span
-                    className={
-                      "text-xs uppercase py-3 font-bold block " +
-                      (router.pathname.indexOf("/admin/dashboard") !== -1
+
+            <span
+                className={`text-xs uppercase py-3 font-bold block ${
+                    isActive("/admin/dashboard")
                         ? "text-lightBlue-500 hover:text-lightBlue-600"
-                        : "text-blueGray-700 hover:text-blueGray-500")
-                    }
-                  >
-                    <i
-                      className={
-                        "fas fa-tv mr-2 text-sm " +
-                        (router.pathname.indexOf("/admin/dashboard") !== -1
-                          ? "opacity-75"
-                          : "text-blueGray-300")
-                      }
-                    ></i>{" "}
-                    Dashboard
-                  </span>
+                        : "text-blueGray-700 hover:text-blueGray-500"
+                }`}
+            >
+              <i
+                  className={`fas fa-tv mr-2 text-sm ${
+                      isActive("/admin/dashboard") ? "opacity-75" : "text-blueGray-300"
+                  }`}
+              ></i>
+              Dashboard
+            </span>
+                </Link>
+              </li>
+
+              <li className="items-center">
+                <Link href="/admin/register-user">
+            <span
+                className={`text-xs uppercase py-3 font-bold block ${
+                    isActive("/admin/register-user")
+                        ? "text-lightBlue-500 hover:text-lightBlue-600"
+                        : "text-blueGray-700 hover:text-blueGray-500"
+                }`}
+            >
+              <i
+                  className={`fas fa-user-plus mr-2 text-sm ${
+                      isActive("/admin/register-user") ? "opacity-75" : "text-blueGray-300"
+                  }`}
+              ></i>
+              Register User
+            </span>
                 </Link>
               </li>
             </ul>
