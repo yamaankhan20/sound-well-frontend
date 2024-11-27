@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
+import DataTable from "react-data-table-component";
 
 
 export default function CardTable({ color, users, setUsers }) {
 
   const [loading, setLoading] = useState({});
   const [error, setError] = useState(null);
-
+  const [searchTerm, setSearchTerm] = useState('');
   // if (users.length === 0) {
   //   return <div>No users found.</div>;
   // }
@@ -45,6 +46,10 @@ export default function CardTable({ color, users, setUsers }) {
 
 
   const deleteUser = async (userId) => {
+
+    const isConfirmed = window.confirm("Are you sure you want to delete this user?");
+    if (!isConfirmed) return;
+
     try {
       // Start loading state
       setLoading((prevState) => ({ ...prevState, [userId]: true }));
@@ -84,6 +89,52 @@ export default function CardTable({ color, users, setUsers }) {
     return date.toISOString().split('T')[0]; // Format as YYYY-MM-DD
   };
 
+  const columns = [
+    {
+      name: 'Name',
+      selector: row => row.username,
+      sortable: true,
+    },
+    {
+      name: 'Email',
+      selector: row => row.email,
+      sortable: true,
+    },
+    {
+      name: 'Barcode',
+      selector: row => row.otps[0]?.Otp,
+      sortable: true,
+    },
+    {
+      name: 'Created At',
+      selector: row => formatDate(row.createdAt),
+      sortable: true,
+    },
+    {
+      name: 'Action',
+      cell: row => (
+          <button
+              onClick={() => deleteUser(row.id)}
+              className={`text-center py-2 px-4 text-white ${loading[row.id] ? "bg-gray-400 cursor-not-allowed" : "bg-red-600 hover:bg-red-700"} rounded-md`}
+              disabled={loading[row.id]}
+          >
+            {loading[row.id] ? "Deleting..." : "Delete"}
+          </button>
+      ),
+    },
+  ];
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);  // Update search term state
+  };
+
+  // Filter users based on search term
+  const filteredUsers = users.filter((user) => {
+    return (
+        user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
+
   return (
     <>
       {error && <p className="text-red-500 text-center">{error}</p>}
@@ -109,92 +160,23 @@ export default function CardTable({ color, users, setUsers }) {
         </div>
         <div className="block w-full overflow-x-auto">
           {/* Projects table */}
-          <table className="items-center w-full bg-transparent border-collapse">
-            <thead>
-            <tr>
-              <th
-                  className={
-                      "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left " +
-                      (color === "light"
-                          ? "bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                          : "bg-blueGray-600 text-blueGray-200 border-blueGray-500")
-                  }
-              >
-                Name
-              </th>
-              <th
-                  className={
-                      "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left " +
-                      (color === "light"
-                          ? "bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                          : "bg-blueGray-600 text-blueGray-200 border-blueGray-500")
-                  }
-              >
-                Email
-              </th>
-              <th
-                  className={
-                      "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left " +
-                      (color === "light"
-                          ? "bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                          : "bg-blueGray-600 text-blueGray-200 border-blueGray-500")
-                  }
-              >
-                Barcode
-              </th>
-              <th
-                  className={
-                      "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left " +
-                      (color === "light"
-                          ? "bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                          : "bg-blueGray-600 text-blueGray-200 border-blueGray-500")
-                  }
-              >Created at
-              </th>
-              <th
-                  className={
-                      "px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left " +
-                      (color === "light"
-                          ? "bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                          : "bg-blueGray-600 text-blueGray-200 border-blueGray-500")
-                  }
-              >Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            {users.length === 0 ? (
-                <tr>
-                  <td colSpan="5" className="text-center py-4 text-gray-500">
-                    No users found.
-                  </td>
-                </tr>
-            ) : (
-            users.map((user) => (
-                <tr key={user.id}>
-                  <th className="px-6 py-4 text-xs text-left flex items-center">
-                    <span className={"ml-3 font-bold " + (color === "light" ? "text-blueGray-600" : "text-white")}>
-                      {user.username}
-                    </span>
-                  </th>
-                  <td className="px-6 py-4 text-xs">{user.email}</td>
-                  <td className="px-6 py-4 text-xs">{user.otps[0]?.Otp}</td>
-                  <td className="px-6 py-4 text-xs">{formatDate(user.createdAt)}</td>
-                  <td className="px-6 py-4 text-xs">
-                    <button
-                        onClick={() => deleteUser(user.id)}  // Trigger delete function
-                        className={`text-center w-full text-left py-2 px-4 text-white ${
-                            loading[user.id] ? "bg-gray-400 cursor-not-allowed" : "bg-red-600 hover:bg-red-700"
-                        } rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition duration-150 ease-in-out`}
-                        disabled={loading[user.id]}
-                    >
-                      {loading[user.id] ? "Deleting..." : "Delete"}
-                    </button>
-                  </td>
-                </tr>
-            ))
-            )}
-            </tbody>
-          </table>
+          <DataTable
+              columns={columns}
+              data={filteredUsers}  // Use filtered data here
+              pagination
+              highlightOnHover
+              responsive
+              persistTableHead
+              subHeader
+              subHeaderComponent={
+                <input
+                    type="text"
+                    placeholder="Search..."
+                    className="w-full px-3 py-2 border rounded-md"
+                    onChange={handleSearch}  // Update state with the search term
+                />
+              }
+          />
         </div>
       </div>
     </>

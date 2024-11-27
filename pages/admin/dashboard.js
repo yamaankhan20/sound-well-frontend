@@ -11,7 +11,6 @@ export default function Dashboard() {
     useEffect(() => {
         const autherize_token = localStorage.getItem("AuthToken");
 
-        // If the token is not available, redirect to login
         if (!autherize_token) {
             Router.replace('/auth/login');
         } else {
@@ -28,7 +27,6 @@ export default function Dashboard() {
             if (response.ok) {
                 setUsers(data.data);
             } else {
-                // If the response isn't ok, set an error message
                 throw new Error("Failed to fetch users");
             }
         } catch (error) {

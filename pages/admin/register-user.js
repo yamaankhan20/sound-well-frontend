@@ -5,11 +5,11 @@ import Router from "next/router";
 export default function RegisterUser() {
     const [username, setUsername] = useState('')
     const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
-    const [buttonText, setButtonText] = useState("Create Account");
-
+    const [buttonText, setButtonText] = useState("Generate Otp");
+    const [otp, setOtp] = useState("");
+    const [isModalOpen, setIsModalOpen] = useState(false);
     useEffect(() => {
         const autherize_token = localStorage.getItem("AuthToken");
 
@@ -22,39 +22,49 @@ export default function RegisterUser() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        setButtonText("Creating...");
+        setButtonText("Generating Otp...");
 
         fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}register`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, email, password }),
+            body: JSON.stringify({ username, email }),
         })
             .then((response )=>{
                 if (!response.ok) {
                     return response.json().then((errorData) => {
                         setError(errorData.error_message || "An error occurred.");
-                        setButtonText("Create Account");
+                        setButtonText("Generate Otp");
                         throw new Error(errorData.error_message || "An error occurred.");
                     });
                 }
                 return response.json();
             })
             .then((data)=>{
-                console.log(data)
                 if (data && data.message) {
-                    setButtonText("Create Account");
+                    setButtonText("Generate Otp");
                     setSuccess(data.message);
-                    Router.replace("/admin/dashboard");
+                    setOtp(data.otp);
+                    setIsModalOpen(true);
                     setError("");
+                    setUsername(' ');
+                    setEmail(' ');
                 } else {
-                    setButtonText("Create Account");
+                    setButtonText("Generate Otp");
                 }
             })
             .catch((error) => {
                 setError(error.message || "Failed to register. Please try again.");
-                setButtonText("Create Account");
+                setButtonText("Generate Otp");
             });
     }
+
+    const copyToClipboard = () => {
+        navigator.clipboard.writeText(otp).then(() => {
+            alert("OTP copied to clipboard!");
+        }).catch((err) => {
+            alert("Failed to copy OTP");
+        });
+    };
 
     return (
         <>
@@ -96,23 +106,6 @@ export default function RegisterUser() {
                                 />
                             </div>
 
-                            <div className="relative w-full mb-3">
-                                <label
-                                    className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
-                                    htmlFor="grid-password"
-                                >
-                                    Password
-                                </label>
-                                <input
-                                    type="password"
-                                    className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow-lg focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
-                                    placeholder="Password"
-                                    value={password}
-                                    onChange={e => setPassword(e.target.value)}
-                                    required
-                                />
-                            </div>
-
                             {error && <p className="text-red-500 text-center">{error}</p>}
                             {success &&
                                 <p style={{color: 'green', textAlign: 'center'}} className=" text-center">{success}</p>}
@@ -127,6 +120,15 @@ export default function RegisterUser() {
                         </form>
                     </div>
                 </div>
+                {isModalOpen && (
+                    <div className="modal">
+                        <div className="modal-content">
+                            <span className="close" onClick={() => setIsModalOpen(false)}>&times;</span>
+                            <h3>Your OTP: {otp}</h3>
+                            <button className={"mt-5 text-center w-full text-left py-2 px-4 text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition duration-150 ease-in-out"} onClick={copyToClipboard}>Copy OTP</button>
+                        </div>
+                    </div>
+                )}
             </div>
         </>
     );
