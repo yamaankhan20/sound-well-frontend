@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import DataTable from "react-data-table-component";
+import Router from "next/router";
 
 
 export default function CardTable({ color, users, setUsers }) {
@@ -44,7 +45,9 @@ export default function CardTable({ color, users, setUsers }) {
   //   }
   // };
 
-
+  const editUser = (id) => {
+    Router.push(`/admin/user/edit/${id}`);
+  };
   const deleteUser = async (userId) => {
 
     const isConfirmed = window.confirm("Are you sure you want to delete this user?");
@@ -91,8 +94,13 @@ export default function CardTable({ color, users, setUsers }) {
 
   const columns = [
     {
-      name: 'Name',
-      selector: row => row.username,
+      name: 'First name',
+      selector: row => row.first_name,
+      sortable: true,
+    },
+    {
+      name: 'Last name',
+      selector: row => row.last_name,
       sortable: true,
     },
     {
@@ -113,37 +121,46 @@ export default function CardTable({ color, users, setUsers }) {
     {
       name: 'Action',
       cell: row => (
-          <button
-              onClick={() => deleteUser(row.id)}
-              className={`text-center py-2 px-4 text-white ${loading[row.id] ? "bg-gray-400 cursor-not-allowed" : "bg-red-600 hover:bg-red-700"} rounded-md`}
-              disabled={loading[row.id]}
-          >
-            {loading[row.id] ? "Deleting..." : "Delete"}
-          </button>
+          <div className="flex justify-center space-x-2">
+            <button
+                onClick={() => editUser(row.id)}  // Call edit function
+                className={`mr-2 py-2 px-4 text-white ${loading[row.id] ? "bg-gray-400 cursor-not-allowed" : "bg-red-600 hover:bg-red-700"} rounded-md`}
+            >
+              Edit
+            </button>
+            <button
+                onClick={() => deleteUser(row.id)}
+                className={`py-2 px-4 text-white ${loading[row.id] ? "bg-gray-400 cursor-not-allowed" : "bg-red-600 hover:bg-red-700"} rounded-md`}
+                disabled={loading[row.id]}
+            >
+              {loading[row.id] ? "Deleting..." : "Delete"}
+            </button>
+          </div>
       ),
     },
   ];
   const handleSearch = (e) => {
-    setSearchTerm(e.target.value);  // Update search term state
+    setSearchTerm(e.target.value);
   };
 
   // Filter users based on search term
   const filteredUsers = users.filter((user) => {
     return (
-        user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
   });
 
   return (
-    <>
-      {error && <p className="text-red-500 text-center">{error}</p>}
-      <div
-        className={
-          "relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded " +
-          (color === "light" ? "bg-white" : "bg-blueGray-700 text-white")
-        }
-      >
+      <>
+        {error && <p className="text-red-500 text-center">{error}</p>}
+        <div
+            className={
+                "relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded " +
+                (color === "light" ? "bg-white" : "bg-blueGray-700 text-white")
+            }
+        >
         <div className="rounded-t mb-0 px-4 py-3 border-0">
           <div className="flex flex-wrap items-center">
             <div className="relative w-full px-4 max-w-full flex-grow flex-1">

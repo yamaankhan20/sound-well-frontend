@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from "react";
 import Router from "next/router";
+import Link from "next/link";
 
 // layout for page
 
@@ -50,7 +51,7 @@ export default function Login() {
             }else if(data.role === "admin"){
               localStorage.setItem("AuthToken", data.token);
               console.log(localStorage.getItem("AuthToken"));
-              Router.replace("/admin/dashboard");
+              Router.replace("/");
               setSuccess(data.message);
             }
           } else {
@@ -137,12 +138,13 @@ export default function Login() {
                 </form>
                 <div className="flex justify-center flex-wrap mt-2 relative">
                   <div className="w-100">
-                <span
-                    onClick={(e) => e.preventDefault()}
-                    className="text-black"
-                >
-                  <small>Forgot password?</small>
-                </span>
+                    <Link href="/auth/forgot-password">
+                      <span
+                          className="text-black"
+                      >
+                        <small>Forgot password?</small>
+                      </span>
+                    </Link>
                   </div>
                 </div>
               </div>

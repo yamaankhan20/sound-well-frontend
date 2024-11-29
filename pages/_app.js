@@ -1,5 +1,4 @@
 import React from "react";
-import ReactDOM from "react-dom";
 import App from "next/app";
 import Head from "next/head";
 import Router from "next/router";
@@ -14,6 +13,12 @@ import "styles/tailwind.css";
 export default class MyApp extends App {
   static async getInitialProps({ Component, router, ctx }) {
     let pageProps = {};
+
+
+    // if (ctx.req && ctx.req.url === '/') {
+    //   ctx.res.writeHead(302, { Location: '/admin/dashboard' });
+    //   ctx.res.end();
+    // }
 
     if (Component.getInitialProps) {
       pageProps = await Component.getInitialProps(ctx);

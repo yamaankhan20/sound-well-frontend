@@ -3,7 +3,6 @@ import Admin from "layouts/Admin.js";
 import Router from "next/router";
 
 export default function RegisterUser() {
-    const [username, setUsername] = useState('')
     const [email, setEmail] = useState("");
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
@@ -27,7 +26,7 @@ export default function RegisterUser() {
         fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}register`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, email }),
+            body: JSON.stringify({ email }),
         })
             .then((response )=>{
                 if (!response.ok) {
@@ -46,7 +45,6 @@ export default function RegisterUser() {
                     setOtp(data.otp);
                     setIsModalOpen(true);
                     setError("");
-                    setUsername(' ');
                     setEmail(' ');
                 } else {
                     setButtonText("Generate Otp");
@@ -72,23 +70,6 @@ export default function RegisterUser() {
                 <div className="w-full mb-12 px-4">
                     <div className="flex-auto px-4 lg:px-10 py-10 pt-10 rounded bg-white relative">
                         <form onSubmit={handleSubmit}>
-                            <div className="relative w-full mb-3">
-                                <label
-                                    className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
-                                    htmlFor="grid-password"
-                                >
-                                    Name
-                                </label>
-                                <input
-                                    type="text"
-                                    className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow-lg focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
-                                    placeholder="Name"
-                                    value={username}
-                                    onChange={e => setUsername(e.target.value)}
-                                    required
-                                />
-                            </div>
-
                             <div className="relative w-full mb-3">
                                 <label
                                     className="block uppercase text-blueGray-600 text-xs font-bold mb-2"

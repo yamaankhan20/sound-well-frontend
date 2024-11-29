@@ -84,7 +84,7 @@ export default function Sidebar() {
 
             <ul className="md:flex-col md:min-w-full flex flex-col list-none">
               <li className="items-center">
-                <Link href="/admin/dashboard">
+                <Link href="/">
 
             <span
                 className={`text-xs uppercase py-3 font-bold block ${
@@ -95,7 +95,7 @@ export default function Sidebar() {
             >
               <i
                   className={`fas fa-tv mr-2 text-sm ${
-                      isActive("/admin/dashboard") ? "opacity-75" : "text-blueGray-300"
+                      isActive("/") ? "opacity-75" : "text-blueGray-300"
                   }`}
               ></i>
               Dashboard
